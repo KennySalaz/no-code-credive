@@ -7,7 +7,11 @@ import StepCuestionario from './components/StepCuestionario.vue'
 import StepPDF from './components/StepPDF.vue'
 import StepBiometria from './components/StepBiometria.vue'
 import LandingHome from './components/LandingHome.vue'
+import StepContinuar from './components/StepContinuar.vue'
 import { crearSolicitud } from './services/airtable'
+
+// Tramo B: si la URL trae ?token=, mostramos la vista de continuar (desde el correo).
+const continuarToken = new URLSearchParams(window.location.search).get('token') || ''
 
 const isWizardOpen = ref(false)
 const currentStep = ref(1)
@@ -189,6 +193,10 @@ onMounted(() => {
     <!-- Main content -->
     <main class="main-wrap">
       
+      <!-- Tramo B: continuar desde el correo (?token=) -->
+      <StepContinuar v-if="continuarToken" :token="continuarToken" />
+
+      <template v-else>
       <!-- Home Informativo -->
       <LandingHome v-if="!isWizardOpen" @startWizard="startWizard" />
 
@@ -272,6 +280,7 @@ onMounted(() => {
           </div>
         </div>
       </div>
+      </template>
     </main>
 
     <!-- Footer -->

@@ -13,3 +13,10 @@
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200
+
+# La ruta /continuar (Tramo B) sirve el index.html de la app.
+# Se usa una ruta específica (no /*) para no interceptar /api/*.
+[[redirects]]
+  from = "/continuar"
+  to = "/index.html"
+  status = 200
