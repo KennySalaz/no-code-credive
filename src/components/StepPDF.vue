@@ -39,15 +39,23 @@ const onDrop = (e: DragEvent) => {
 
 const removeFile = () => { archivo.value = null; uploaded.value = false }
 
+const fileToBase64 = (file: File): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(String(reader.result).split(',')[1] ?? '')
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
+
 const handleNext = async () => {
   if (!archivo.value) return
   uploading.value = true
-  await new Promise(r => setTimeout(r, 1500))
+  const pdfBase64 = await fileToBase64(archivo.value)
   uploading.value = false
   uploaded.value = true
   await new Promise(r => setTimeout(r, 800))
   gsap.to('.pdf-card', { x: -30, opacity: 0, duration: 0.35, ease: 'power2.in',
-    onComplete: () => emit('next', { archivo: archivo.value?.name })
+    onComplete: () => emit('next', { archivo: archivo.value?.name, pdfBase64 })
   })
 }
 

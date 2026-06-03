@@ -25,3 +25,14 @@ export async function createRecord(fields) {
   const json = await res.json();
   return json.id;
 }
+
+// Busca un registro por su Token. Devuelve el registro o null.
+export async function getByToken(token) {
+  const formula = encodeURIComponent(`{Token} = '${token}'`);
+  const res = await fetch(`${ENDPOINT}?filterByFormula=${formula}&maxRecords=1`, {
+    headers: { Authorization: `Bearer ${TOKEN}` },
+  });
+  if (!res.ok) return null;
+  const json = await res.json();
+  return (json.records && json.records[0]) || null;
+}

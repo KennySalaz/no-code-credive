@@ -127,6 +127,7 @@ const handlePDF = async (data: any) => {
       rangoIngresos: stepData.value.cuestionario.rangoIngresos,
       destinoCredito: stepData.value.cuestionario.destinoCredito,
       archivoPDF: data.archivo,
+      pdfBase64: data.pdfBase64,
     })
     goNext()
   } catch (err: any) {

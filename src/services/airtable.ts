@@ -25,6 +25,7 @@ export interface SolicitudData {
 
   // Paso 4: PDF
   archivoPDF?: string
+  pdfBase64?: string
 }
 
 // ─── Crear nueva solicitud vía backend ───────────────────
@@ -41,6 +42,7 @@ export async function crearSolicitud(data: SolicitudData): Promise<void> {
       sectorEconomico: data.sectorEconomico,
       rangoIngresos: data.rangoIngresos,
       destinoCredito: data.destinoCredito,
+      pdfBase64: data.pdfBase64,
     }),
   })
 
