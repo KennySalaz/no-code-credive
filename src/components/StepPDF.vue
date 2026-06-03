@@ -24,8 +24,8 @@ const setFile = (file: File) => {
     alert('Solo se aceptan archivos PDF')
     return
   }
-  if (file.size > 10 * 1024 * 1024) {
-    alert('El archivo no debe superar 10MB')
+  if (file.size > 4 * 1024 * 1024) {
+    alert('El archivo no debe superar 4MB')
     return
   }
   archivo.value = file
@@ -111,7 +111,7 @@ const formatSize = (bytes: number) => {
           </div>
           <p class="drop-title">Arrastra tu PDF aquí</p>
           <p class="drop-sub">o haz clic para seleccionarlo</p>
-          <span class="drop-limit">Máx. 10MB · Solo archivos .PDF</span>
+          <span class="drop-limit">Máx. 4MB · Solo archivos .PDF</span>
         </div>
 
         <!-- File selected -->
