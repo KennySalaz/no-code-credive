@@ -1,10 +1,34 @@
-import { createRecord } from "../lib/airtable.mjs";
+import { createRecord, getByToken } from "../lib/airtable.mjs";
 import { mapSolicitud } from "../lib/mapSolicitud.mjs";
 import { getStore } from "@netlify/blobs";
 
 const MAX_PDF_BYTES = 4 * 1024 * 1024; // 4 MB
 
+// Mapea el Estado real de Airtable a un estado simple para el Tramo B.
+const ESTADO_TRAMO_B = {
+  "Por Verificar": "en_revision",
+  "Aprobado": "aprobado",
+  "Verificado": "aprobado", // biometría hecha; sigue dentro del Tramo B
+  "Contrato Firmado": "completado",
+  "Activo": "completado",
+  "Rechazado": "rechazado",
+};
+
 export default async (req) => {
+  // GET /api/solicitud?token=  ->  Tramo B: validar el token y devolver el estado.
+  if (req.method === "GET") {
+    const token = new URL(req.url).searchParams.get("token");
+    if (!token) return Response.json({ ok: false, error: "Falta token" }, { status: 400 });
+
+    const rec = await getByToken(token);
+    if (!rec) return Response.json({ ok: false, estado: "no_existe" }, { status: 404 });
+
+    const estado = String(rec.fields.Estado || "").trim();
+    const estadoNorm = ESTADO_TRAMO_B[estado] || "en_revision";
+    const datos = estadoNorm === "aprobado" ? { nombre: rec.fields.Nombres || "" } : undefined;
+    return Response.json({ ok: true, estado: estadoNorm, datos });
+  }
+
   if (req.method !== "POST") {
     return Response.json({ ok: false, error: "Método no permitido" }, { status: 405 });
   }
