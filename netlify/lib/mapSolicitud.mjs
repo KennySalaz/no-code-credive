@@ -17,5 +17,11 @@ export function mapSolicitud(input, token) {
     fields.Cedula = Number(digits);
   }
 
+  // Cuestionario (paso 2): se agrega cada dato solo si viene.
+  if (input.fuenteIngresos) fields["Fuente de Ingresos"] = String(input.fuenteIngresos);
+  if (input.sectorEconomico) fields["Sector Económico"] = String(input.sectorEconomico);
+  if (input.rangoIngresos) fields["Rango de Ingresos"] = String(input.rangoIngresos);
+  if (input.destinoCredito) fields["Destino del Crédito"] = String(input.destinoCredito);
+
   return fields;
 }

@@ -37,6 +37,10 @@ export async function crearSolicitud(data: SolicitudData): Promise<void> {
       correo: data.correo,
       telefono: data.telefono,
       cedula: data.cedula,
+      fuenteIngresos: data.fuenteIngresos,
+      sectorEconomico: data.sectorEconomico,
+      rangoIngresos: data.rangoIngresos,
+      destinoCredito: data.destinoCredito,
     }),
   })
 

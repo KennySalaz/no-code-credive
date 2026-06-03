@@ -34,3 +34,26 @@ test("omite Cedula si no hay dígitos válidos", () => {
   const f = mapSolicitud({ ...input, cedula: "abc" }, "tok-123");
   assert.equal(f.Cedula, undefined);
 });
+
+test("incluye el cuestionario cuando viene", () => {
+  const f = mapSolicitud(
+    {
+      ...input,
+      fuenteIngresos: "Negocio propio",
+      sectorEconomico: "Comercio",
+      rangoIngresos: "VES 1M-3M",
+      destinoCredito: "Compra inventario",
+    },
+    "tok-123"
+  );
+  assert.equal(f["Fuente de Ingresos"], "Negocio propio");
+  assert.equal(f["Sector Económico"], "Comercio");
+  assert.equal(f["Rango de Ingresos"], "VES 1M-3M");
+  assert.equal(f["Destino del Crédito"], "Compra inventario");
+});
+
+test("no agrega campos de cuestionario si no vienen", () => {
+  const f = mapSolicitud(input, "tok-123");
+  assert.equal(f["Fuente de Ingresos"], undefined);
+  assert.equal(f["Destino del Crédito"], undefined);
+});
