@@ -1,0 +1,15 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+# netlify dev levanta Vite y hace de proxy de las funciones
+[dev]
+  command = "npm run dev"
+  targetPort = 5173
+
+# /api/x -> función "x"
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200

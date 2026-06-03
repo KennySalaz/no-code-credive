@@ -41,7 +41,6 @@ const stepData = ref({
   pdf: '' as any
 })
 
-const airtableRecordId = ref('')
 const submitting = ref(false)
 const submitError = ref('')
 
@@ -115,7 +114,7 @@ const handlePDF = async (data: any) => {
   submitting.value = true
   submitError.value = ''
   try {
-    const recordId = await crearSolicitud({
+    await crearSolicitud({
       monto: stepData.value.monto,
       cuota: stepData.value.cuota,
       frecuencia: stepData.value.frecuencia,
@@ -129,7 +128,6 @@ const handlePDF = async (data: any) => {
       destinoCredito: stepData.value.cuestionario.destinoCredito,
       archivoPDF: data.archivo,
     })
-    airtableRecordId.value = recordId
     goNext()
   } catch (err: any) {
     submitError.value = err.message || 'Error al guardar los datos. Intenta de nuevo.'
