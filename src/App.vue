@@ -308,7 +308,7 @@ onMounted(() => {
 /* Shell */
 .app-shell {
   min-height: 100vh; display: flex; flex-direction: column;
-  background: var(--bg-dark); position: relative; overflow-x: hidden;
+  background: var(--bg-dark); position: relative; overflow-x: clip;
 }
 
 /* BG orbs */
