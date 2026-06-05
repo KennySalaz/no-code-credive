@@ -26,3 +26,8 @@ dist-ssr
 
 # Local Netlify folder
 .netlify
+
+# Agent skills tooling / mockups de diseño (no forman parte de la app)
+.agents/
+skills-lock.json
+docs/mockups/
