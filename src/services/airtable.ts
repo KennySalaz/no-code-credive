@@ -51,3 +51,20 @@ export async function crearSolicitud(data: SolicitudData): Promise<void> {
     throw new Error(err?.error || 'No se pudo guardar la solicitud')
   }
 }
+
+// ─── Chequeo de cédula única (en vivo) ───────────────────
+// Devuelve true si ya hay una solicitud (no rechazada) con esa cédula.
+// Falla "en abierto" (false) ante un error de red: el backend vuelve a
+// validar al crear, así que nunca se cuela un duplicado.
+export async function cedulaExiste(cedula: string): Promise<boolean> {
+  const digits = String(cedula ?? '').replace(/\D/g, '')
+  if (digits.length < 6) return false
+  try {
+    const res = await fetch(`/api/solicitud?cedula=${encodeURIComponent(digits)}`)
+    if (!res.ok) return false
+    const json = await res.json()
+    return !!json.existe
+  } catch {
+    return false
+  }
+}

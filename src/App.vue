@@ -5,7 +5,7 @@ import StepSimular from './components/StepSimular.vue'
 import StepRegistro from './components/StepRegistro.vue'
 import StepCuestionario from './components/StepCuestionario.vue'
 import StepPDF from './components/StepPDF.vue'
-import StepBiometria from './components/StepBiometria.vue'
+import StepEnviado from './components/StepEnviado.vue'
 import LandingHome from './components/LandingHome.vue'
 import StepContinuar from './components/StepContinuar.vue'
 import { crearSolicitud } from './services/airtable'
@@ -15,7 +15,7 @@ const continuarToken = new URLSearchParams(window.location.search).get('token') 
 
 const isWizardOpen = ref(false)
 const currentStep = ref(1)
-const totalSteps = 5
+const totalSteps = 4
 
 // Listado de temas disponibles
 const themes = [
@@ -47,8 +47,9 @@ const stepData = ref({
 
 const submitting = ref(false)
 const submitError = ref('')
+const solicitudEnviada = ref(false)
 
-const stepLabels = ['Simular', 'Registro', 'Perfil', 'Ingresos', 'Identidad']
+const stepLabels = ['Simular', 'Registro', 'Perfil', 'Ingresos']
 
 const progressWidth = computed(() => `${((currentStep.value - 1) / (totalSteps - 1)) * 100}%`)
 
@@ -85,12 +86,14 @@ const goBack = () => {
 const startWizard = (step = 1) => {
   isWizardOpen.value = true
   currentStep.value = step
+  solicitudEnviada.value = false
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
 const resetToHome = () => {
   isWizardOpen.value = false
   currentStep.value = 1
+  solicitudEnviada.value = false
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
@@ -133,7 +136,9 @@ const handlePDF = async (data: any) => {
       archivoPDF: data.archivo,
       pdfBase64: data.pdfBase64,
     })
-    goNext()
+    localStorage.removeItem('creditve_registro')
+    solicitudEnviada.value = true
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   } catch (err: any) {
     submitError.value = err.message || 'Error al guardar los datos. Intenta de nuevo.'
   } finally {
@@ -203,7 +208,7 @@ onMounted(() => {
       <!-- Wizard de Solicitud en 5 Pasos -->
       <div v-else class="wizard-container">
         <!-- Stepper (hidden on step 1) -->
-        <div v-if="currentStep > 1" class="stepper-wrap">
+        <div v-if="currentStep > 1 && !solicitudEnviada" class="stepper-wrap">
           <div class="stepper-bar">
             <div class="stepper-progress" :style="{ width: progressWidth }"></div>
           </div>
@@ -227,7 +232,8 @@ onMounted(() => {
         <!-- Steps -->
         <div class="step-content">
           <Transition name="slide" mode="out-in">
-            <StepSimular v-if="currentStep === 1" @next="handleSimular" />
+            <StepEnviado v-if="solicitudEnviada" :nombre="stepData.nombre" @home="resetToHome" />
+            <StepSimular v-else-if="currentStep === 1" @next="handleSimular" />
             <StepRegistro
               v-else-if="currentStep === 2"
               :monto="stepData.monto"
@@ -249,15 +255,6 @@ onMounted(() => {
               :submitting="submitting"
               @next="handlePDF"
               @back="goBack"
-            />
-            <StepBiometria
-              v-else-if="currentStep === 5"
-              :monto="stepData.monto"
-              :cuota="stepData.cuota"
-              :frecuencia="stepData.frecuencia"
-              :nombre="stepData.nombre"
-              @back="goBack"
-              @finish="() => {}"
             />
           </Transition>
 

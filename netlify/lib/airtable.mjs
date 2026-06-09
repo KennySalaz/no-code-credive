@@ -37,6 +37,19 @@ export async function getByToken(token) {
   return (json.records && json.records[0]) || null;
 }
 
+// Busca registros por Cédula (campo numérico). Devuelve un array (puede ir vacío).
+export async function getByCedula(cedula) {
+  const num = Number(String(cedula).replace(/\D/g, ""));
+  if (!num) return [];
+  const formula = encodeURIComponent(`{Cedula} = ${num}`);
+  const res = await fetch(`${ENDPOINT}?filterByFormula=${formula}`, {
+    headers: { Authorization: `Bearer ${TOKEN}` },
+  });
+  if (!res.ok) return [];
+  const json = await res.json();
+  return json.records || [];
+}
+
 // Actualiza campos de un registro por su id. Devuelve el id.
 export async function updateRecord(recordId, fields) {
   const res = await fetch(`${ENDPOINT}/${recordId}`, {

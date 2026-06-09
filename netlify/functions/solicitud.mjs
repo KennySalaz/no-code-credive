@@ -1,4 +1,4 @@
-import { createRecord, getByToken } from "../lib/airtable.mjs";
+import { createRecord, getByToken, getByCedula } from "../lib/airtable.mjs";
 import { mapSolicitud } from "../lib/mapSolicitud.mjs";
 import { getStore } from "@netlify/blobs";
 
@@ -17,7 +17,17 @@ const ESTADO_TRAMO_B = {
 export default async (req) => {
   // GET /api/solicitud?token=  ->  Tramo B: validar el token y devolver el estado.
   if (req.method === "GET") {
-    const token = new URL(req.url).searchParams.get("token");
+    const params = new URL(req.url).searchParams;
+
+    // Chequeo de cédula en vivo (Tramo A): ?cedula=...  ->  { existe: bool }
+    const cedulaQuery = params.get("cedula");
+    if (cedulaQuery) {
+      const recs = await getByCedula(cedulaQuery);
+      const existe = recs.some((r) => String(r.fields.Estado || "").trim() !== "Rechazado");
+      return Response.json({ ok: true, existe });
+    }
+
+    const token = params.get("token");
     if (!token) return Response.json({ ok: false, error: "Falta token" }, { status: 400 });
 
     const rec = await getByToken(token);
@@ -46,6 +56,21 @@ export default async (req) => {
       { ok: false, error: "Faltan datos obligatorios (nombre, correo, telefono)" },
       { status: 400 }
     );
+  }
+
+  // Cédula única: el correo y el teléfono pueden repetirse, la cédula no.
+  // Solo bloquea si ya hay una solicitud NO rechazada con esa cédula
+  // (si la anterior fue rechazada, puede volver a intentar).
+  const cedulaDigits = String(body.cedula ?? "").replace(/\D/g, "");
+  if (cedulaDigits) {
+    const existentes = await getByCedula(cedulaDigits);
+    const activa = existentes.some((r) => String(r.fields.Estado || "").trim() !== "Rechazado");
+    if (activa) {
+      return Response.json(
+        { ok: false, error: "Ya existe una solicitud registrada con esta cédula." },
+        { status: 409 }
+      );
+    }
   }
 
   const token = crypto.randomUUID();
